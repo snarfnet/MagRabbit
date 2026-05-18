@@ -1,6 +1,29 @@
 default_platform(:ios)
 
 platform :ios do
+  desc "Create app on App Store Connect"
+  lane :produce_app do
+    # Load API key
+    api_key_path = File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{ENV['API_KEY_ID']}.p8")
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV['API_KEY_ID'],
+      issuer_id: ENV['API_ISSUER_ID'],
+      key_filepath: api_key_path,
+      is_key_content_base64: false,
+      in_house: false
+    )
+
+    # Create app on App Store Connect
+    produce(
+      app_name: "MagRabbit",
+      app_identifier: "com.magrabbit.MagRabbit",
+      sku: "MagRabbit-001",
+      api_key: api_key,
+      skip_itc: false
+    )
+  end
+
   desc "Upload pre-built IPA to TestFlight"
   lane :upload_testflight do |options|
     ipa_path = options[:ipa_path] || "build/export/MagRabbit.ipa"

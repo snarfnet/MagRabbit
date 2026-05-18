@@ -20,14 +20,28 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Register App in App Store Connect
+      - name: Setup Ruby for Fastlane (App Registration)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Setup API Key for Fastlane
         env:
-          AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
-          AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
-          AUTHKEY: ${{ secrets.AUTHKEY }}
+          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          API_KEY_BASE64: ${{ secrets.AUTHKEY }}
         run: |
-          chmod +x ./scripts/auto_register_asc.sh
-          ./scripts/auto_register_asc.sh || echo "App already registered"
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$API_KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+
+      - name: Register App in App Store Connect with Fastlane
+        env:
+          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+        run: fastlane produce_app || echo "App already registered"
 
       - name: Generate Xcode Project with xcodegen
         run: |
@@ -68,16 +82,6 @@ jobs:
           mkdir -p build/Payload
           cp -r "$APP_PATH" build/Payload/
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
-
-      - name: Setup Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-          bundler-cache: true
-
-      - name: Install Fastlane
-        run: |
-          gem install fastlane
 
       - name: Upload to TestFlight with Fastlane
         env:
