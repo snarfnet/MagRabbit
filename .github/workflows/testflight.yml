@@ -30,8 +30,9 @@ jobs:
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_KEY: ${{ secrets.AUTHKEY }}
         run: |
-          mkdir -p ~/.appstoreconnect/keys
-          echo "$APPSTORE_KEY" | base64 -d > ~/.appstoreconnect/keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$APPSTORE_KEY" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
 
       - name: Build and Sign Archive
         env:
@@ -60,14 +61,12 @@ jobs:
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
       - name: Upload to TestFlight
-        env:
-          APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
         run: |
           xcrun altool \
             --upload-app \
             --type ios \
             --file ./build/export/MagRabbit.ipa \
-            --apiKey ~/.appstoreconnect/keys/AuthKey_${APPSTORE_KEY_ID}.p8 \
-            --apiIssuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
+            --apiKeyID ${{ secrets.AUTHKEY_KEY_ID }} \
+            --apiIssuerID ${{ secrets.AUTHKEY_ISSUER_ID }} \
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 
