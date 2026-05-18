@@ -23,7 +23,7 @@ on:
         type: boolean
         default: false
       revoke_certificate_id:
-        description: Certificate ID to revoke before building
+        description: Certificate ID(s) to revoke before building, separated by comma or space
         required: false
         type: string
         default: ""
@@ -89,18 +89,20 @@ jobs:
           JWT=$(generate_jwt)
 
           if [ -n "$REVOKE_CERTIFICATE_ID" ]; then
-            echo "Revoking certificate: ${REVOKE_CERTIFICATE_ID}"
-            curl -sS -X DELETE "https://api.appstoreconnect.apple.com/v1/certificates/${REVOKE_CERTIFICATE_ID}" \
-              -H "Authorization: Bearer ${JWT}" \
-              -H "Content-Type: application/json" \
-              -o "$RUNNER_TEMP/revoke-response.json" \
-              -w "%{http_code}" > "$RUNNER_TEMP/revoke-status.txt"
-            STATUS=$(cat "$RUNNER_TEMP/revoke-status.txt")
-            if [ "$STATUS" != "204" ]; then
-              cat "$RUNNER_TEMP/revoke-response.json"
-              exit 1
-            fi
-            echo "Certificate revoked."
+            for CERTIFICATE_ID in $(echo "$REVOKE_CERTIFICATE_ID" | tr ',' ' '); do
+              echo "Revoking certificate: ${CERTIFICATE_ID}"
+              curl -sS -X DELETE "https://api.appstoreconnect.apple.com/v1/certificates/${CERTIFICATE_ID}" \
+                -H "Authorization: Bearer ${JWT}" \
+                -H "Content-Type: application/json" \
+                -o "$RUNNER_TEMP/revoke-response-${CERTIFICATE_ID}.json" \
+                -w "%{http_code}" > "$RUNNER_TEMP/revoke-status-${CERTIFICATE_ID}.txt"
+              STATUS=$(cat "$RUNNER_TEMP/revoke-status-${CERTIFICATE_ID}.txt")
+              if [ "$STATUS" != "204" ]; then
+                cat "$RUNNER_TEMP/revoke-response-${CERTIFICATE_ID}.json"
+                exit 1
+              fi
+              echo "Certificate revoked: ${CERTIFICATE_ID}"
+            done
           fi
 
           RESPONSE=$(curl -sS -X GET "https://api.appstoreconnect.apple.com/v1/certificates?limit=200&fields%5Bcertificates%5D=name,certificateType,displayName,serialNumber,platform,expirationDate,activated" \
