@@ -22,10 +22,10 @@ generate_jwt() {
     local key_id=$2
     local issuer_id=$3
 
-    local header='{\"alg\":\"ES256\",\"kid\":\"'${key_id}'\",\"typ\":\"JWT\"}'
+    local header='{"alg":"ES256","kid":"'${key_id}'","typ":"JWT"}'
     local now=$(date +%s)
     local exp=$((now + 20*60))
-    local payload='{\"iss\":\"'${issuer_id}'\",\"iat\":'${now}',\"exp\":'${exp}',\"aud\":\"appstoreconnect-v1\"}'
+    local payload='{"iss":"'${issuer_id}'","iat":'${now}',"exp":'${exp}',"aud":"appstoreconnect-v1"}'
 
     local header_b64=$(echo -n "$header" | base64 | tr -d '\n')
     local payload_b64=$(echo -n "$payload" | base64 | tr -d '\n')

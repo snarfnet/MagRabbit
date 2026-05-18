@@ -33,8 +33,7 @@ fastlane produce \
   --bundle_identifier "$BUNDLE_ID" \
   --team_id "$TEAM_ID" \
   --api_key_path "$API_KEY_PATH" \
-  --language "Japanese" \
-  --skip_itc
+  --language "Japanese"
 
 echo
 echo "✅ アプリ登録完了！"

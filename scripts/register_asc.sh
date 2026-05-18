@@ -66,15 +66,20 @@ RESPONSE=$(curl -s -X POST "https://api.appstoreconnect.apple.com/v1/apps" \
     }
   }')
 
-echo "$RESPONSE" | jq .
+echo "$RESPONSE"
 
-# Check response
-if echo "$RESPONSE" | jq -e '.errors' > /dev/null 2>&1; then
+# Check response (simple grep instead of jq)
+if echo "$RESPONSE" | grep -q '"errors"'; then
     echo "❌ エラーが発生しました"
     exit 1
 fi
 
-APP_ID=$(echo "$RESPONSE" | jq -r '.data.id')
+if echo "$RESPONSE" | grep -q '"id"'; then
+    APP_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+else
+    echo "❌ アプリ作成に失敗しました"
+    exit 1
+fi
 echo
 echo "✅ アプリ登録完了!"
 echo "App ID: $APP_ID"
