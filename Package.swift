@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "MagRabbit",
     platforms: [
-        .iOS(.v15)
+        .iOS(.v16)
     ],
     products: [
         .executable(

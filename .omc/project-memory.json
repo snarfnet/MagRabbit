@@ -84,14 +84,20 @@
   "hotPaths": [
     {
       "path": "project.yml",
-      "accessCount": 3,
-      "lastAccessed": 1779100444618,
+      "accessCount": 5,
+      "lastAccessed": 1779100947324,
       "type": "file"
     },
     {
       "path": "Package.swift",
-      "accessCount": 2,
-      "lastAccessed": 1779098426697,
+      "accessCount": 3,
+      "lastAccessed": 1779100937503,
+      "type": "file"
+    },
+    {
+      "path": "Info.plist",
+      "accessCount": 3,
+      "lastAccessed": 1779100944358,
       "type": "file"
     },
     {
@@ -117,12 +123,6 @@
       "accessCount": 1,
       "lastAccessed": 1779098073815,
       "type": "directory"
-    },
-    {
-      "path": "Info.plist",
-      "accessCount": 1,
-      "lastAccessed": 1779098106814,
-      "type": "file"
     },
     {
       "path": "ExportOptions.plist",

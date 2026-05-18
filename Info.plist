@@ -23,7 +23,7 @@
 	<key>NSAllowsArbitraryLoads</key>
 	<false/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>This app requires local network access for Google Mobile Ads.</string>
+	<string>This app requires local network access.</string>
 	<key>NSBonjourServices</key>
 	<array/>
 	<key>NSMulticastDNSServices</key>

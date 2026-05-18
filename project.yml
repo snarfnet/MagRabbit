@@ -2,14 +2,14 @@ name: MagRabbit
 options:
   bundleIdPrefix: com.amasaki
   deploymentTarget:
-    iOS: "15.0"
+    iOS: "16.0"
   developmentTeam: JGQD8PLNN8
 
 targets:
   MagRabbit:
     type: application
     platform: iOS
-    deploymentTarget: "15.0"
+    deploymentTarget: "16.0"
     sources:
       - Sources/MagRabbit
       - path: Sources/MagRabbit/Data
