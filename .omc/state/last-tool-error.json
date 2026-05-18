@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"for i in {1..25}; do\\n  run=$(gh run list --repo snarfnet/MagRabbit --workflow testflight.yml --limit 1 --json status,conclusion 2>/dev/null)\\n  status=$(echo \\\"$run\\\" | grep -o '\\\"status\\...",
-  "error": "Exit code 1\n[1/25] queued\n[2/25] in_progress\n[3/25] in_progress\n[4/25] in_progress\n[5/25] in_progress\n[6/25] in_progress\n[7/25] in_progress\n[8/25] in_progress\n❌ FAILED",
-  "timestamp": "2026-05-18T11:00:37.912Z",
+  "tool_input_preview": "{\"command\":\"for i in {1..25}; do\\n  result=$(gh run list --repo snarfnet/MagRabbit --workflow testflight.yml --limit 1 --json status,conclusion 2>/dev/null)\\n  status=$(echo \\\"$result\\\" | grep -o '\\\"s...",
+  "error": "Exit code 1\n[1] in_progress\n[2] in_progress\n[3] in_progress\n[4] in_progress\n[5] in_progress\n[6] in_progress\n❌ FAILED\ncompleted\tfailure\tTry newer altool API key flags\tBuild & Upload to TestFlight\tmain\tpush\t26029423381\t41s\t2026-05-18T11:01:05Z",
+  "timestamp": "2026-05-18T11:01:51.155Z",
   "retry_count": 1
 }
