@@ -49,6 +49,8 @@ RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?fi
   -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json")
 
+echo "DEBUG: GET response: $RESPONSE"
+
 # 既存をチェック
 if echo "$RESPONSE" | grep -q '"identifier":"'${BUNDLE_ID}'"'; then
     echo "✓ Bundle ID は既に登録済み"
@@ -71,8 +73,10 @@ RESPONSE=$(curl -s -X POST "https://api.appstoreconnect.apple.com/v1/bundleIds" 
     }
   }')
 
+echo "DEBUG: POST response: $RESPONSE"
+
 # レスポンス解析
-if echo "$RESPONSE" | grep -q '\"errors\"'; then
+if echo "$RESPONSE" | grep -q '"errors"'; then
     echo "❌ エラー:"
     echo "$RESPONSE"
     exit 1
