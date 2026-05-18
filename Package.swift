@@ -7,15 +7,13 @@ let package = Package(
         .iOS(.v15)
     ],
     products: [
-        .library(
+        .executable(
             name: "MagRabbit",
             targets: ["MagRabbit"])
     ],
-    dependencies: [
-        // Google Mobile Ads SDK is managed via CocoaPods
-    ],
+    dependencies: [],
     targets: [
-        .target(
+        .executableTarget(
             name: "MagRabbit",
             dependencies: [],
             resources: [
