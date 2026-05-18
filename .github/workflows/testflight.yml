@@ -20,6 +20,12 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Generate Xcode Project from SPM
+        run: |
+          cd MagRabbit
+          swift package generate-xcodeproj
+          ls -la MagRabbit.xcodeproj/ || echo "Project already exists"
+
       - name: Install dependencies
         run: |
           cd MagRabbit
@@ -28,7 +34,6 @@ jobs:
 
       - name: Build Archive
         run: |
-          cd MagRabbit
           xcodebuild archive \
             -scheme MagRabbit \
             -configuration Release \
@@ -36,14 +41,15 @@ jobs:
             -allowProvisioningUpdates \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="MagRabbit AppStore"
+        working-directory: ./MagRabbit
 
       - name: Export IPA
         run: |
-          cd MagRabbit
           xcodebuild -exportArchive \
-            -archivePath ./build/MagRabbit.xcarchive \
+            -archivePath ../build/MagRabbit.xcarchive \
             -exportPath ./build/export \
             -exportOptionsPlist ExportOptions.plist
+        working-directory: ./MagRabbit
 
       - name: Setup AuthKey
         run: |
