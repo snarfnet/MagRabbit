@@ -48,7 +48,7 @@ echo
 echo "📝 Bundle ID 確認中..."
 
 set +e
-RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter[identifier]=${BUNDLE_ID}" \
+RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter%5Bidentifier%5D=${BUNDLE_ID}" \
   -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json")
 CURL_EXIT=$?
