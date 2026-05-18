@@ -171,7 +171,8 @@ jobs:
               -authenticationKeyID "$APPSTORE_KEY_ID" \
               -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
               DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-              CODE_SIGN_STYLE=Automatic
+              CODE_SIGN_STYLE=Automatic \
+              CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
           else
             xcodebuild archive \
               -project MagRabbit.xcodeproj \
@@ -180,6 +181,7 @@ jobs:
               -destination generic/platform=iOS \
               -archivePath ./build/MagRabbit.xcarchive \
               -derivedDataPath ./build/DerivedData \
+              CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
               CODE_SIGN_IDENTITY="" \
               CODE_SIGNING_REQUIRED=NO \
               CODE_SIGNING_ALLOWED=NO
