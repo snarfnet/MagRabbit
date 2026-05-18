@@ -20,6 +20,15 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Register Bundle ID on App Store Connect
+        env:
+          AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          AUTHKEY: ${{ secrets.AUTHKEY }}
+        run: |
+          chmod +x ./scripts/register_bundle_id.sh
+          ./scripts/register_bundle_id.sh || echo "Bundle ID already registered"
+
       - name: Generate Xcode Project with xcodegen
         run: |
           brew install xcodegen
