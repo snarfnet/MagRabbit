@@ -20,10 +20,16 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Generate Xcode Project with xcode-gen
+        run: |
+          brew install xcode-gen
+          xcode-gen generate -s project.yml
+
       - name: Build Archive
         run: |
           mkdir -p build
           xcodebuild archive \
+            -project MagRabbit.xcodeproj \
             -scheme MagRabbit \
             -configuration Release \
             -destination generic/platform=iOS \
