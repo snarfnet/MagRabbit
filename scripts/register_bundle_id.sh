@@ -45,7 +45,7 @@ echo
 # Bundle ID が既に存在するか確認
 echo "📝 Bundle ID 確認中..."
 
-RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter\[identifier\]=${BUNDLE_ID}" \
+RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter[identifier]=${BUNDLE_ID}" \
   -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json")
 
