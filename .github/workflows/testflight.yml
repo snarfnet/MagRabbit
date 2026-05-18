@@ -58,29 +58,63 @@ jobs:
 
       - name: Build and Sign Archive
         env:
+          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           mkdir -p build
-          # Build archive
-          xcodebuild archive \
-            -project MagRabbit.xcodeproj \
-            -scheme MagRabbit \
-            -configuration Release \
-            -destination generic/platform=iOS \
-            -archivePath ./build/MagRabbit.xcarchive \
-            -derivedDataPath ./build/DerivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+
+          if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
+            xcodebuild archive \
+              -project MagRabbit.xcodeproj \
+              -scheme MagRabbit \
+              -configuration Release \
+              -destination generic/platform=iOS \
+              -archivePath ./build/MagRabbit.xcarchive \
+              -derivedDataPath ./build/DerivedData \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
+              -authenticationKeyID "$APPSTORE_KEY_ID" \
+              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
+              DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+              CODE_SIGN_STYLE=Automatic
+          else
+            xcodebuild archive \
+              -project MagRabbit.xcodeproj \
+              -scheme MagRabbit \
+              -configuration Release \
+              -destination generic/platform=iOS \
+              -archivePath ./build/MagRabbit.xcarchive \
+              -derivedDataPath ./build/DerivedData \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          fi
 
       - name: Create IPA
+        env:
+          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+          APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
         run: |
           mkdir -p build/export
-          # Extract app from archive and create IPA manually
-          APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
-          mkdir -p build/Payload
-          cp -r "$APP_PATH" build/Payload/
-          cd build && zip -r export/MagRabbit.ipa Payload && cd ..
+
+          if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
+            xcodebuild -exportArchive \
+              -archivePath ./build/MagRabbit.xcarchive \
+              -exportPath ./build/export \
+              -exportOptionsPlist ExportOptions.plist \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
+              -authenticationKeyID "$APPSTORE_KEY_ID" \
+              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+          else
+            APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
+            mkdir -p build/Payload
+            cp -r "$APP_PATH" build/Payload/
+            cd build && zip -r export/MagRabbit.ipa Payload && cd ..
+          fi
 
       - name: Setup Ruby
         if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
