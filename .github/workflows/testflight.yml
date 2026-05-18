@@ -192,14 +192,12 @@ jobs:
           mkdir -p build/export
 
           if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
-            xcodebuild -exportArchive \
-              -archivePath ./build/MagRabbit.xcarchive \
-              -exportPath ./build/export \
-              -exportOptionsPlist ExportOptions.plist \
-              -allowProvisioningUpdates \
-              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
-              -authenticationKeyID "$APPSTORE_KEY_ID" \
-              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+            APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
+            test -f "$APP_PATH/embedded.mobileprovision"
+            rm -rf build/Payload
+            mkdir -p build/Payload
+            cp -R "$APP_PATH" build/Payload/
+            cd build && zip -qry export/MagRabbit.ipa Payload && cd ..
           else
             APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
             mkdir -p build/Payload
