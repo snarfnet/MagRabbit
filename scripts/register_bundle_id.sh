@@ -27,11 +27,11 @@ generate_jwt() {
     local exp=$((now + 20*60))
     local payload='{"iss":"'${issuer_id}'","iat":'${now}',"exp":'${exp}',"aud":"appstoreconnect-v1"}'
 
-    local header_b64=$(echo -n "$header" | base64 | tr -d '\n')
-    local payload_b64=$(echo -n "$payload" | base64 | tr -d '\n')
+    local header_b64=$(echo -n "$header" | openssl base64)
+    local payload_b64=$(echo -n "$payload" | openssl base64)
     local header_payload="${header_b64}.${payload_b64}"
 
-    local signature=$(echo -n "$header_payload" | openssl dgst -sha256 -sign "$key_file" | base64 | tr -d '\n')
+    local signature=$(echo -n "$header_payload" | openssl dgst -sha256 -sign "$key_file" | openssl base64)
 
     echo "${header_payload}.${signature}"
 }
