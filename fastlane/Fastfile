@@ -19,6 +19,7 @@ platform :ios do
     pilot(
       ipa: ipa_path,
       api_key: api_key,
+      app_identifier: "com.amasaki.MagRabbit",
       skip_waiting_for_build_processing: true,
       skip_submission: false,
       distribute_external: false
