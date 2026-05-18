@@ -62,11 +62,12 @@ jobs:
 
       - name: Upload to TestFlight
         run: |
-          # Use transporter (newer than altool) for upload
-          KEY_FILE="${HOME}/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8"
-
-          xcrun transporter -t upload \
-            -f ./build/export/MagRabbit.ipa \
-            -apiKey "$KEY_FILE" \
-            -apiIssuer ${{ secrets.AUTHKEY_ISSUER_ID }}
+          # Upload using altool with proper credentials
+          xcrun altool \
+            --upload-app \
+            --type ios \
+            --file ./build/export/MagRabbit.ipa \
+            --api-key-id "${{ secrets.AUTHKEY_KEY_ID }}" \
+            --api-issuer-id "${{ secrets.AUTHKEY_ISSUER_ID }}" \
+            --api-private-key-path "${HOME}/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8"
 

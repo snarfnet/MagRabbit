@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"for i in {1..25}; do\\n  run=$(gh run list --repo snarfnet/MagRabbit --workflow testflight.yml --limit 1 --json status,conclusion,databaseId 2>/dev/null)\\n  status=$(echo \\\"$run\\\" | grep -o...",
-  "error": "Exit code 1\n[1/25] Status: queued\n[2/25] Status: in_progress\n[3/25] Status: in_progress\n[4/25] Status: in_progress\n[5/25] Status: in_progress\n[6/25] Status: in_progress\n[7/25] Status: in_progress\n[8/25] Status: in_progress\n❌ BUILD FAILED",
-  "timestamp": "2026-05-18T10:59:13.822Z",
+  "tool_input_preview": "{\"command\":\"for i in {1..25}; do\\n  run=$(gh run list --repo snarfnet/MagRabbit --workflow testflight.yml --limit 1 --json status,conclusion 2>/dev/null)\\n  status=$(echo \\\"$run\\\" | grep -o '\\\"status\\...",
+  "error": "Exit code 1\n[1/25] queued\n[2/25] in_progress\n[3/25] in_progress\n[4/25] in_progress\n[5/25] in_progress\n[6/25] in_progress\n[7/25] in_progress\n[8/25] in_progress\n❌ FAILED",
+  "timestamp": "2026-05-18T11:00:37.912Z",
   "retry_count": 1
 }
