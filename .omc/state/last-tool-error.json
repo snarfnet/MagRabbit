@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"bash /tmp/monitor_build.sh\"}",
-  "error": "Exit code 1\n[1/30] Status: queued - waiting...\n[2/30] Status: in_progress - waiting...\n[3/30] Status: in_progress - waiting...\n[4/30] Status: in_progress - waiting...\n❌ BUILD FAILED (conclusion: failure)",
-  "timestamp": "2026-05-18T10:56:03.435Z",
+  "tool_input_preview": "{\"command\":\"for i in {1..25}; do\\n  run=$(gh run list --repo snarfnet/MagRabbit --workflow testflight.yml --limit 1 --json status,conclusion,databaseId 2>/dev/null)\\n  status=$(echo \\\"$run\\\" | grep -o...",
+  "error": "Exit code 1\n[1/25] Status: queued\n[2/25] Status: in_progress\n[3/25] Status: in_progress\n[4/25] Status: in_progress\n[5/25] Status: in_progress\n[6/25] Status: in_progress\n[7/25] Status: in_progress\n[8/25] Status: in_progress\n❌ BUILD FAILED",
+  "timestamp": "2026-05-18T10:59:13.822Z",
   "retry_count": 1
 }
