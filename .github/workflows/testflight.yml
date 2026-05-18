@@ -62,11 +62,12 @@ jobs:
 
       - name: Upload to TestFlight
         run: |
+          KEY_PATH="${HOME}/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8"
           xcrun altool \
             --upload-app \
             --type ios \
             --file ./build/export/MagRabbit.ipa \
-            --api-key ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
+            --api-key "$KEY_PATH" \
             --api-issuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 
