@@ -35,9 +35,7 @@ jobs:
             -destination generic/platform=iOS \
             -archivePath ./build/MagRabbit.xcarchive \
             -allowProvisioningUpdates \
-            -derivedDataPath ./build/DerivedData \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="MagRabbit AppStore"
+            -derivedDataPath ./build/DerivedData
 
       - name: Export IPA
         run: |
