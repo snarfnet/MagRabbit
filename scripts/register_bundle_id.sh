@@ -65,7 +65,7 @@ RESPONSE=$(curl -s -X POST "https://api.appstoreconnect.apple.com/v1/bundleIds" 
     "data": {
       "type": "bundleIds",
       "attributes": {
-        "identifier": "'${BUNDLE_ID}',
+        "identifier": "'${BUNDLE_ID}'",
         "name": "MagRabbit"
       }
     }
