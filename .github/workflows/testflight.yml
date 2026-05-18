@@ -60,7 +60,7 @@ jobs:
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Notify Slack (optional)
-        if: always() && secrets.SLACK_WEBHOOK != ''
+        if: always()
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
