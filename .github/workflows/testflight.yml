@@ -66,7 +66,7 @@ jobs:
             --upload-app \
             --type ios \
             --file ./build/export/MagRabbit.ipa \
-            --apiKeyID ${{ secrets.AUTHKEY_KEY_ID }} \
-            --apiIssuerID ${{ secrets.AUTHKEY_ISSUER_ID }} \
+            --api-key ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
+            --api-issuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 
