@@ -48,14 +48,15 @@ echo
 echo "📝 Bundle ID 確認中..."
 
 set +e
-RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter%5Bidentifier%5D=${BUNDLE_ID}" \
+RESPONSE=$(curl -v -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter%5Bidentifier%5D=${BUNDLE_ID}" \
   -H "Authorization: Bearer ${JWT}" \
-  -H "Content-Type: application/json")
+  -H "Content-Type: application/json" 2>&1)
 CURL_EXIT=$?
 set -e
 
 echo "DEBUG: curl exit code = $CURL_EXIT"
-echo "DEBUG: GET response = $RESPONSE"
+echo "DEBUG: Full curl output:"
+echo "$RESPONSE"
 
 # 既存をチェック
 if echo "$RESPONSE" | grep -q '"identifier":"'${BUNDLE_ID}'"'; then
