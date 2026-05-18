@@ -1,7 +1,7 @@
 {
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"C:\\\\Users\\\\Windows\\\\.claude\\\\projects\\\\C--Users-Windows\\\\6d2803e2-c873-443d-974a-1ad5de804e82\\\\tool-results\\\\bvk7ui7p4.txt\"}",
-  "error": "File content (32853 tokens) exceeds maximum allowed tokens (25000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-05-18T10:42:04.766Z",
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"bash /tmp/monitor_build.sh\"}",
+  "error": "Exit code 1\n[1/30] Status: queued - waiting...\n[2/30] Status: in_progress - waiting...\n[3/30] Status: in_progress - waiting...\n[4/30] Status: in_progress - waiting...\n❌ BUILD FAILED (conclusion: failure)",
+  "timestamp": "2026-05-18T10:43:22.095Z",
   "retry_count": 1
 }
