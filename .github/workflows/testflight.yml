@@ -20,15 +20,16 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Generate Xcode Project from SPM
+      - name: Install CocoaPods dependencies
         run: |
-          swift package generate-xcodeproj
-          ls -la MagRabbit.xcodeproj/ || echo "Project generated"
+          sudo gem install cocoapods
+          pod install
 
       - name: Build Archive
         run: |
           mkdir -p build
           xcodebuild archive \
+            -workspace MagRabbit.xcworkspace \
             -scheme MagRabbit \
             -configuration Release \
             -archivePath ./build/MagRabbit.xcarchive \

@@ -12,17 +12,12 @@ let package = Package(
             targets: ["MagRabbit"])
     ],
     dependencies: [
-        .package(
-            url: "https://github.com/google-mobile-sdk/google-mobile-sdk-ios.git",
-            from: "10.0.0"
-        )
+        // Google Mobile Ads SDK is managed via CocoaPods
     ],
     targets: [
         .target(
             name: "MagRabbit",
-            dependencies: [
-                .product(name: "GoogleMobileAds", package: "google-mobile-sdk-ios")
-            ],
+            dependencies: [],
             resources: [
                 .process("Data/magazines.json")
             ]
