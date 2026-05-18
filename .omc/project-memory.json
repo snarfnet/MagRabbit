@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779096296316,
+  "projectRoot": "C:\\Users\\Windows\\MagRabbit",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "MagRabbit": {
+      "path": "MagRabbit",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1779096296276,
+      "keyFiles": [
+        "ContentView.swift",
+        "ExportOptions.plist",
+        "Info.plist",
+        "MagRabbit.entitlements",
+        "MagRabbitApp.swift"
+      ]
+    },
+    "MagRabbit\\Data": {
+      "path": "MagRabbit\\Data",
+      "purpose": "Data files",
+      "fileCount": 2,
+      "lastAccessed": 1779096296278,
+      "keyFiles": [
+        "magazines.json",
+        "magazines_1000.json"
+      ]
+    },
+    "MagRabbit\\Helpers": {
+      "path": "MagRabbit\\Helpers",
+      "purpose": "Helper functions",
+      "fileCount": 1,
+      "lastAccessed": 1779096296278,
+      "keyFiles": [
+        "ColorExtension.swift"
+      ]
+    },
+    "MagRabbit\\Models": {
+      "path": "MagRabbit\\Models",
+      "purpose": "Data models",
+      "fileCount": 1,
+      "lastAccessed": 1779096296279,
+      "keyFiles": [
+        "Magazine.swift"
+      ]
+    },
+    "MagRabbit\\Views": {
+      "path": "MagRabbit\\Views",
+      "purpose": "View templates",
+      "fileCount": 2,
+      "lastAccessed": 1779096296280,
+      "keyFiles": [
+        "MagazineCard.swift",
+        "MagazineDetailView.swift"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1779098073815,
+      "type": "directory"
+    },
+    {
+      "path": "Package.swift",
+      "accessCount": 1,
+      "lastAccessed": 1779098073855,
+      "type": "file"
+    },
+    {
+      "path": "Info.plist",
+      "accessCount": 1,
+      "lastAccessed": 1779098106814,
+      "type": "file"
+    },
+    {
+      "path": "ExportOptions.plist",
+      "accessCount": 1,
+      "lastAccessed": 1779098108112,
+      "type": "file"
+    },
+    {
+      "path": "MagRabbit.entitlements",
+      "accessCount": 1,
+      "lastAccessed": 1779098109097,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -22,18 +22,12 @@ jobs:
 
       - name: Generate Xcode Project from SPM
         run: |
-          cd MagRabbit
           swift package generate-xcodeproj
-          ls -la MagRabbit.xcodeproj/ || echo "Project already exists"
-
-      - name: Install dependencies
-        run: |
-          cd MagRabbit
-          # CocoaPods or SPM dependencies (if needed)
-          # pod install
+          ls -la MagRabbit.xcodeproj/ || echo "Project generated"
 
       - name: Build Archive
         run: |
+          mkdir -p build
           xcodebuild archive \
             -scheme MagRabbit \
             -configuration Release \
@@ -41,15 +35,14 @@ jobs:
             -allowProvisioningUpdates \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="MagRabbit AppStore"
-        working-directory: ./MagRabbit
 
       - name: Export IPA
         run: |
+          mkdir -p build/export
           xcodebuild -exportArchive \
-            -archivePath ../build/MagRabbit.xcarchive \
+            -archivePath ./build/MagRabbit.xcarchive \
             -exportPath ./build/export \
             -exportOptionsPlist ExportOptions.plist
-        working-directory: ./MagRabbit
 
       - name: Setup AuthKey
         run: |
@@ -58,19 +51,19 @@ jobs:
 
       - name: Upload to TestFlight
         run: |
-          cd MagRabbit/build/export
           xcrun altool \
             --upload-app \
             --type ios \
-            --file MagRabbit.ipa \
+            --file ./build/export/MagRabbit.ipa \
             --apiKey ~/.appstoreconnect/keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
             --apiIssuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Notify Slack (optional)
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK != ''
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
           text: 'TestFlight Build: ${{ job.status }}'
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
