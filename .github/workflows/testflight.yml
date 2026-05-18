@@ -20,10 +20,10 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Generate Xcode Project with xcode-gen
+      - name: Generate Xcode Project with xcodegen
         run: |
-          brew install xcode-gen
-          xcode-gen generate -s project.yml
+          brew install xcodegen
+          xcodegen generate -s project.yml
 
       - name: Build Archive
         run: |
