@@ -69,34 +69,23 @@ jobs:
           cp -r "$APP_PATH" build/Payload/
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
-      - name: Upload to TestFlight
-        env:
-          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
-          API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
-          IPA_FILE: ./build/export/MagRabbit.ipa
+      - name: Save IPA as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MagRabbit-IPA
+          path: ./build/export/MagRabbit.ipa
+          retention-days: 30
+
+      - name: Upload to TestFlight (Manual)
+        if: always()
         run: |
-          # Setup key file with explicit path
-          KEY_FILE="${HOME}/.private_keys/AuthKey_${API_KEY_ID}.p8"
-          mkdir -p "${HOME}/.private_keys"
-          cp "${HOME}/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8" "$KEY_FILE"
-          chmod 600 "$KEY_FILE"
-
-          # Verify IPA exists
-          if [ ! -f "$IPA_FILE" ]; then
-            echo "❌ IPA file not found: $IPA_FILE"
-            ls -la ./build/export/
-            exit 1
-          fi
-
-          echo "📤 Uploading to TestFlight..."
-          echo "IPA: $IPA_FILE"
-          echo "Key: $KEY_FILE"
-
-          # Upload with explicit file reference
-          xcrun altool \
-            --upload-app \
-            --type ios \
-            --file "$IPA_FILE" \
-            --api-issuer "$API_ISSUER_ID" \
-            --api-key "$KEY_FILE"
+          echo "✅ IPA が生成されました！"
+          echo ""
+          echo "📱 TestFlight にアップロード:"
+          echo "  1. GitHub Actions → Artifacts → MagRabbit-IPA をダウンロード"
+          echo "  2. Xcode → Organizer → Distribute App"
+          echo "  3. TestFlight → アップロード"
+          echo ""
+          echo "または、App Store Connect で直接アップロード可能です。"
 
