@@ -45,6 +45,11 @@ jobs:
             -exportPath ./build/export \
             -exportOptionsPlist ExportOptions.plist
 
+      - name: Setup AuthKey
+        run: |
+          mkdir -p ~/.appstoreconnect/keys
+          echo "${{ secrets.AUTHKEY }}" | base64 -d > ~/.appstoreconnect/keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8
+
       - name: Upload to TestFlight
         run: |
           cd MagRabbit/build/export
@@ -52,9 +57,9 @@ jobs:
             --upload-app \
             --type ios \
             --file MagRabbit.ipa \
-            --username ${{ secrets.APPLE_ID }} \
-            --password ${{ secrets.APPLE_PASSWORD }} \
-            --app-specific-password ${{ secrets.APP_SPECIFIC_PASSWORD }}
+            --apiKey ~/.appstoreconnect/keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
+            --apiIssuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
+            --teamID ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Notify Slack (optional)
         if: always()
