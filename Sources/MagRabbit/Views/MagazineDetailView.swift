@@ -14,6 +14,36 @@ struct MagazineDetailView: View {
         Set(savedMagazineIDs.split(separator: ",").map(String.init))
     }
 
+    private var officialWebsiteURL: URL? {
+        let trimmedURL = magazine.websiteUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            !trimmedURL.isEmpty,
+            !trimmedURL.contains("example-mag-"),
+            !trimmedURL.contains("example.com")
+        else {
+            return nil
+        }
+
+        return URL(string: trimmedURL)
+    }
+
+    private var websiteLookupURL: URL? {
+        let query = "\(magazine.name) \(magazine.country) magazine official site"
+        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            return nil
+        }
+
+        return URL(string: "https://www.google.com/search?q=\(encodedQuery)")
+    }
+
+    private var websiteDestinationURL: URL? {
+        officialWebsiteURL ?? websiteLookupURL
+    }
+
+    private var websiteButtonTitle: String {
+        officialWebsiteURL == nil ? "公式サイトを探す" : "公式サイトで確認"
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
@@ -140,12 +170,12 @@ struct MagazineDetailView: View {
 
     private var websiteButton: some View {
         Button {
-            guard let url = URL(string: magazine.websiteUrl) else { return }
+            guard let url = websiteDestinationURL else { return }
             openURL(url)
         } label: {
             HStack {
                 Image(systemName: "safari.fill")
-                Text("公式サイトで確認")
+                Text(websiteButtonTitle)
                     .fontWeight(.bold)
                 Spacer()
                 Image(systemName: "arrow.up.right")
@@ -155,6 +185,7 @@ struct MagazineDetailView: View {
             .background(AppTheme.ink, in: RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .disabled(websiteDestinationURL == nil)
     }
 
     private func toggleSaved() {
