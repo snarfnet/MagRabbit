@@ -83,16 +83,28 @@
   },
   "hotPaths": [
     {
+      "path": "Package.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779098426697,
+      "type": "file"
+    },
+    {
+      "path": "Sources\\MagRabbit\\MagRabbitApp.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779098608456,
+      "type": "file"
+    },
+    {
+      "path": "Sources\\MagRabbit\\AdMob\\BannerAdView.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779098614954,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 1,
       "lastAccessed": 1779098073815,
       "type": "directory"
-    },
-    {
-      "path": "Package.swift",
-      "accessCount": 1,
-      "lastAccessed": 1779098073855,
-      "type": "file"
     },
     {
       "path": "Info.plist",
@@ -110,6 +122,12 @@
       "path": "MagRabbit.entitlements",
       "accessCount": 1,
       "lastAccessed": 1779098109097,
+      "type": "file"
+    },
+    {
+      "path": "Podfile",
+      "accessCount": 1,
+      "lastAccessed": 1779098424751,
       "type": "file"
     }
   ],

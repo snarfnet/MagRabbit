@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"/c/Users/Windows/MagRabbit\\\" && python3 generate_magazines.py\",\"description\":\"Generate 1000 magazines JSON data\"}",
-  "error": "Exit code 1\nTraceback (most recent call last):\r\n  File \"C:\\Users\\Windows\\MagRabbit\\generate_magazines.py\", line 266, in <module>\r\n    save_to_json(magazines, output_file)\r\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Windows\\MagRabbit\\generate_magazines.py\", line 259, in save_to_json\r\n    print(f\"\\u2705 {len(magazines)} ���̃f�[�^�𐶐����܂���\")\r\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nUnicodeEncodeError: 'cp932' codec can't encode character '\\u2705' in position 0:...",
-  "timestamp": "2026-05-18T08:30:34.605Z",
-  "retry_count": 3
+  "tool_input_preview": "{\"command\":\"sleep 5 && gh run list --repo snarfnet/MagRabbit --limit 3 && echo \\\"---\\\" && gh run view --repo snarfnet/MagRabbit $(gh run list --repo snarfnet/MagRabbit --limit 1 -q)\",\"description\":\"Ch...",
+  "error": "Exit code 1\nin_progress\t\tRemove Slack notification step - not configured\tBuild & Upload to TestFlight\tmain\tpush\t26026550453\t6s\t2026-05-18T09:58:45Z\ncompleted\tfailure\tFix: Remove invalid GitHub Actions syntax in Slack notification condi…\tBuild & Upload to TestFlight\tmain\tpush\t26026419812\t18s\t2026-05-18T09:56:03Z\ncompleted\tfailure\tFix: Restructure project to proper SPM layout and update GitHub Actio…\tBuild & Upload to TestFlight\tmain\tpush\t26026396312\t0s\t2026-05-18T09:55:33Z\n---\nflag needs an argum...",
+  "timestamp": "2026-05-18T09:58:52.054Z",
+  "retry_count": 1
 }
