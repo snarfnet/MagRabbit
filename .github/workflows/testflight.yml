@@ -90,7 +90,7 @@ jobs:
           echo "$API_KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
 
           # Upload via Fastlane
-          fastlane upload_testflight ipa_path:./build/export/MagRabbit.ipa api_key_path:~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+          fastlane upload_testflight ipa_path:./build/export/MagRabbit.ipa api_key_path:$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
 
       - name: Save IPA as Artifact
         if: always()

@@ -4,7 +4,7 @@ platform :ios do
   desc "Upload pre-built IPA to TestFlight"
   lane :upload_testflight do |options|
     ipa_path = options[:ipa_path] || "build/export/MagRabbit.ipa"
-    api_key_path = options[:api_key_path] || File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{ENV['API_KEY_ID']}.p8")
+    api_key_path = File.expand_path(options[:api_key_path] || "~/.appstoreconnect/private_keys/AuthKey_#{ENV['API_KEY_ID']}.p8")
 
     pilot(
       ipa: ipa_path,
