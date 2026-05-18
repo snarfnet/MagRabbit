@@ -41,15 +41,21 @@ JWT=$(generate_jwt ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8 "$AP
 
 echo "✓ JWT 生成完了"
 echo
+echo "DEBUG: JWT = ${JWT:0:50}..."
+echo
 
 # Bundle ID が既に存在するか確認
 echo "📝 Bundle ID 確認中..."
 
+set +e
 RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter[identifier]=${BUNDLE_ID}" \
   -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json")
+CURL_EXIT=$?
+set -e
 
-echo "DEBUG: GET response: $RESPONSE"
+echo "DEBUG: curl exit code = $CURL_EXIT"
+echo "DEBUG: GET response = $RESPONSE"
 
 # 既存をチェック
 if echo "$RESPONSE" | grep -q '"identifier":"'${BUNDLE_ID}'"'; then
