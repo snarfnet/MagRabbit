@@ -17,6 +17,16 @@ on:
         required: false
         type: boolean
         default: false
+      list_certificates:
+        description: List signing certificates and stop
+        required: false
+        type: boolean
+        default: false
+      revoke_certificate_id:
+        description: Certificate ID to revoke before building
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build:
@@ -41,6 +51,87 @@ jobs:
           chmod +x ./scripts/register_bundle_id.sh
           ./scripts/register_bundle_id.sh
 
+      - name: List or revoke signing certificates
+        if: ${{ inputs.list_certificates || inputs.revoke_certificate_id != '' }}
+        env:
+          AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          AUTHKEY: ${{ secrets.AUTHKEY }}
+          REVOKE_CERTIFICATE_ID: ${{ inputs.revoke_certificate_id }}
+        run: |
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${AUTHKEY_KEY_ID}.p8"
+          echo "$AUTHKEY" | base64 -d > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+
+          generate_jwt() {
+            KEY_PATH="$KEY_PATH" AUTHKEY_KEY_ID="$AUTHKEY_KEY_ID" AUTHKEY_ISSUER_ID="$AUTHKEY_ISSUER_ID" ruby -ropenssl -rjson -rbase64 <<'RUBY'
+          def base64_url(value)
+            Base64.urlsafe_encode64(value, padding: false)
+          end
+
+          def int_to_fixed_bytes(value)
+            value.to_s(16).rjust(64, "0").scan(/../).map { |byte| byte.to_i(16) }.pack("C*")
+          end
+
+          now = Time.now.to_i
+          header = { alg: "ES256", kid: ENV.fetch("AUTHKEY_KEY_ID"), typ: "JWT" }
+          payload = { iss: ENV.fetch("AUTHKEY_ISSUER_ID"), iat: now, exp: now + 20 * 60, aud: "appstoreconnect-v1" }
+          token_body = [base64_url(JSON.generate(header)), base64_url(JSON.generate(payload))].join(".")
+          key = OpenSSL::PKey.read(File.read(ENV.fetch("KEY_PATH")))
+          der_signature = key.sign(OpenSSL::Digest::SHA256.new, token_body)
+          asn1_signature = OpenSSL::ASN1.decode(der_signature)
+          r = int_to_fixed_bytes(asn1_signature.value[0].value)
+          s = int_to_fixed_bytes(asn1_signature.value[1].value)
+          puts [token_body, base64_url(r + s)].join(".")
+          RUBY
+          }
+
+          JWT=$(generate_jwt)
+
+          if [ -n "$REVOKE_CERTIFICATE_ID" ]; then
+            echo "Revoking certificate: ${REVOKE_CERTIFICATE_ID}"
+            curl -sS -X DELETE "https://api.appstoreconnect.apple.com/v1/certificates/${REVOKE_CERTIFICATE_ID}" \
+              -H "Authorization: Bearer ${JWT}" \
+              -H "Content-Type: application/json" \
+              -o "$RUNNER_TEMP/revoke-response.json" \
+              -w "%{http_code}" > "$RUNNER_TEMP/revoke-status.txt"
+            STATUS=$(cat "$RUNNER_TEMP/revoke-status.txt")
+            if [ "$STATUS" != "204" ]; then
+              cat "$RUNNER_TEMP/revoke-response.json"
+              exit 1
+            fi
+            echo "Certificate revoked."
+          fi
+
+          RESPONSE=$(curl -sS -X GET "https://api.appstoreconnect.apple.com/v1/certificates?limit=200&fields%5Bcertificates%5D=name,certificateType,displayName,serialNumber,platform,expirationDate,activated" \
+            -H "Authorization: Bearer ${JWT}" \
+            -H "Content-Type: application/json")
+
+          echo "$RESPONSE" | ruby -rjson -e '
+            json = JSON.parse(STDIN.read)
+            if json["errors"]
+              warn JSON.pretty_generate(json)
+              exit 1
+            end
+            puts "CERTIFICATE_ID | TYPE | EXPIRES | ACTIVE | DISPLAY_NAME | SERIAL"
+            json.fetch("data", []).sort_by { |item| item.dig("attributes", "expirationDate").to_s }.each do |item|
+              a = item.fetch("attributes", {})
+              puts [
+                item["id"],
+                a["certificateType"],
+                a["expirationDate"],
+                a["activated"],
+                a["displayName"] || a["name"],
+                a["serialNumber"]
+              ].join(" | ")
+            end
+          '
+
+          if [ "${{ inputs.list_certificates }}" = "true" ]; then
+            echo "Certificate listing complete. Stop here so a certificate can be chosen safely."
+            exit 1
+          fi
+
       - name: Generate Xcode Project with xcodegen
         run: |
           brew install xcodegen
@@ -55,47 +146,6 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$APPSTORE_KEY" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
           chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
-
-      - name: Install signing certificate and provisioning profile
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
-        env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          if [ -z "$BUILD_CERTIFICATE_BASE64" ] || [ -z "$P12_PASSWORD" ] || [ -z "$PROVISIONING_PROFILE_BASE64" ]; then
-            echo "Missing signing secrets. Set BUILD_CERTIFICATE_BASE64, P12_PASSWORD, and PROVISIONING_PROFILE_BASE64."
-            exit 1
-          fi
-
-          KEYCHAIN_PASSWORD="${KEYCHAIN_PASSWORD:-temporary-ci-keychain-password}"
-          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
-          PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-
-          echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
-          echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          PROFILE_PLIST="$RUNNER_TEMP/profile.plist"
-          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
-          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" "$PROFILE_PLIST")
-          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print Name" "$PROFILE_PLIST")
-          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
-
-          {
-            echo "PROFILE_UUID=${PROFILE_UUID}"
-            echo "PROFILE_NAME=${PROFILE_NAME}"
-            echo "KEYCHAIN_PATH=${KEYCHAIN_PATH}"
-          } >> "$GITHUB_ENV"
 
       - name: Build and Sign Archive
         env:
@@ -114,10 +164,12 @@ jobs:
               -destination generic/platform=iOS \
               -archivePath ./build/MagRabbit.xcarchive \
               -derivedDataPath ./build/DerivedData \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
+              -authenticationKeyID "$APPSTORE_KEY_ID" \
+              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
               DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-              CODE_SIGN_STYLE=Manual \
-              CODE_SIGN_IDENTITY="Apple Distribution" \
-              PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
+              CODE_SIGN_STYLE=Automatic
           else
             xcodebuild archive \
               -project MagRabbit.xcodeproj \
@@ -136,41 +188,18 @@ jobs:
           UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           mkdir -p build/export
 
           if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
-            cat > build/ExportOptions.ci.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>app-store</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>teamID</key>
-            <string>${APPLE_TEAM_ID}</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>com.magrabbit.MagRabbit</key>
-              <string>${PROFILE_NAME}</string>
-            </dict>
-            <key>stripSwiftSymbols</key>
-            <true/>
-            <key>compileBitcode</key>
-            <false/>
-            <key>thinning</key>
-            <string>&lt;none&gt;</string>
-          </dict>
-          </plist>
-          EOF
-
             xcodebuild -exportArchive \
               -archivePath ./build/MagRabbit.xcarchive \
               -exportPath ./build/export \
-              -exportOptionsPlist build/ExportOptions.ci.plist
+              -exportOptionsPlist ExportOptions.plist \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
+              -authenticationKeyID "$APPSTORE_KEY_ID" \
+              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
           else
             APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
             mkdir -p build/Payload
