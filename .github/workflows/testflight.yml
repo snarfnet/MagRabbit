@@ -63,6 +63,10 @@ jobs:
       - name: Upload to TestFlight
         run: |
           KEY_PATH="${HOME}/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8"
+          echo "Key path: $KEY_PATH"
+          ls -la "${HOME}/.appstoreconnect/private_keys/" || echo "Directory not found"
+          file "$KEY_PATH" || echo "Key file not found"
+
           xcrun altool \
             --upload-app \
             --type ios \
