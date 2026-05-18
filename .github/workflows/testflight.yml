@@ -26,6 +26,7 @@ jobs:
           xcodebuild archive \
             -scheme MagRabbit \
             -configuration Release \
+            -destination generic/platform=iOS \
             -archivePath ./build/MagRabbit.xcarchive \
             -allowProvisioningUpdates \
             -derivedDataPath ./build/DerivedData \
