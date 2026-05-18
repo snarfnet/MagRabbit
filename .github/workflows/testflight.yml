@@ -69,6 +69,29 @@ jobs:
           cp -r "$APP_PATH" build/Payload/
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
+      - name: Setup Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+
+      - name: Install Fastlane
+        run: |
+          gem install fastlane
+
+      - name: Upload to TestFlight with Fastlane
+        env:
+          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          API_KEY_BASE64: ${{ secrets.AUTHKEY }}
+        run: |
+          # Setup API Key
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$API_KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+
+          # Upload via Fastlane
+          fastlane upload_testflight ipa_path:./build/export/MagRabbit.ipa api_key_path:~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+
       - name: Save IPA as Artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,16 +99,4 @@ jobs:
           name: MagRabbit-IPA
           path: ./build/export/MagRabbit.ipa
           retention-days: 30
-
-      - name: Upload to TestFlight (Manual)
-        if: always()
-        run: |
-          echo "✅ IPA が生成されました！"
-          echo ""
-          echo "📱 TestFlight にアップロード:"
-          echo "  1. GitHub Actions → Artifacts → MagRabbit-IPA をダウンロード"
-          echo "  2. Xcode → Organizer → Distribute App"
-          echo "  3. TestFlight → アップロード"
-          echo ""
-          echo "または、App Store Connect で直接アップロード可能です。"
 
