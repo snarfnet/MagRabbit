@@ -70,16 +70,33 @@ jobs:
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
       - name: Upload to TestFlight
+        env:
+          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          IPA_FILE: ./build/export/MagRabbit.ipa
         run: |
-          # Copy auth key to standard location for altool
-          cp ${HOME}/.appstoreconnect/private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
-             ${HOME}/.private_keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 2>/dev/null || true
+          # Setup key file with explicit path
+          KEY_FILE="${HOME}/.private_keys/AuthKey_${API_KEY_ID}.p8"
+          mkdir -p "${HOME}/.private_keys"
+          cp "${HOME}/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8" "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
 
-          # Upload using altool
+          # Verify IPA exists
+          if [ ! -f "$IPA_FILE" ]; then
+            echo "❌ IPA file not found: $IPA_FILE"
+            ls -la ./build/export/
+            exit 1
+          fi
+
+          echo "📤 Uploading to TestFlight..."
+          echo "IPA: $IPA_FILE"
+          echo "Key: $KEY_FILE"
+
+          # Upload with explicit file reference
           xcrun altool \
             --upload-app \
             --type ios \
-            --file ./build/export/MagRabbit.ipa \
-            --api-issuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
-            --api-key AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8
+            --file "$IPA_FILE" \
+            --api-issuer "$API_ISSUER_ID" \
+            --api-key "$KEY_FILE"
 
