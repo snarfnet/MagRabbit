@@ -6,9 +6,19 @@ platform :ios do
     ipa_path = options[:ipa_path] || "build/export/MagRabbit.ipa"
     api_key_path = File.expand_path(options[:api_key_path] || "~/.appstoreconnect/private_keys/AuthKey_#{ENV['API_KEY_ID']}.p8")
 
+    # Load API key from .p8 file
+    api_key = app_store_connect_api_key(
+      key_id: ENV['API_KEY_ID'],
+      issuer_id: ENV['API_ISSUER_ID'],
+      key_filepath: api_key_path,
+      is_key_content_base64: false,
+      in_house: false
+    )
+
+    # Upload to TestFlight using the loaded API key
     pilot(
       ipa: ipa_path,
-      api_key_path: api_key_path,
+      api_key: api_key,
       skip_waiting_for_build_processing: true,
       skip_submission: false,
       distribute_external: false
