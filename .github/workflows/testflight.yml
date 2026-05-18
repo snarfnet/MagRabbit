@@ -25,7 +25,17 @@ jobs:
           brew install xcodegen
           xcodegen generate -s project.yml
 
-      - name: Build Archive
+      - name: Setup API Key
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          APPSTORE_KEY: ${{ secrets.AUTHKEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/keys
+          echo "$APPSTORE_KEY" | base64 -d > ~/.appstoreconnect/keys/AuthKey_${APPSTORE_KEY_ID}.p8
+
+      - name: Build Archive with automatic provisioning
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
         run: |
           mkdir -p build
           xcodebuild archive \
@@ -35,10 +45,10 @@ jobs:
             -destination generic/platform=iOS \
             -archivePath ./build/MagRabbit.xcarchive \
             -derivedDataPath ./build/DerivedData \
-            -UseModernBuildSystem=YES \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "${{ secrets.AUTHKEY_ISSUER_ID }}" \
+            -authenticationKeyPath ~/.appstoreconnect/keys/AuthKey_${APPSTORE_KEY_ID}.p8 \
+            -allowProvisioningUpdates
 
       - name: Export IPA
         run: |
@@ -46,20 +56,18 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath ./build/MagRabbit.xcarchive \
             -exportPath ./build/export \
-            -exportOptionsPlist ExportOptions.plist
-
-      - name: Setup AuthKey
-        run: |
-          mkdir -p ~/.appstoreconnect/keys
-          echo "${{ secrets.AUTHKEY }}" | base64 -d > ~/.appstoreconnect/keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8
+            -exportOptionsPlist ExportOptions.plist \
+            -allowProvisioningUpdates
 
       - name: Upload to TestFlight
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
         run: |
           xcrun altool \
             --upload-app \
             --type ios \
             --file ./build/export/MagRabbit.ipa \
-            --apiKey ~/.appstoreconnect/keys/AuthKey_${{ secrets.AUTHKEY_KEY_ID }}.p8 \
+            --apiKey ~/.appstoreconnect/keys/AuthKey_${APPSTORE_KEY_ID}.p8 \
             --apiIssuer ${{ secrets.AUTHKEY_ISSUER_ID }} \
             --teamID ${{ secrets.APPLE_TEAM_ID }}
 

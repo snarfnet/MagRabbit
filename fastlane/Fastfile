@@ -1,0 +1,36 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    setup_ci if is_ci
+
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      api_key_path: File.expand_path("~/.appstoreconnect/keys/AuthKey_#{ENV['APPSTORE_KEY_ID']}.p8")
+    )
+
+    build_app(
+      workspace: "MagRabbit.xcworkspace",
+      scheme: "MagRabbit",
+      configuration: "Release",
+      derived_data_path: "build/DerivedData",
+      destination: "generic/platform=iOS",
+      archive_path: "build/MagRabbit.xcarchive",
+      export_path: "build/export",
+      export_options: {
+        method: "app-store",
+        signingStyle: "automatic",
+        teamID: ENV['APPLE_TEAM_ID']
+      },
+      skip_package_ipa: false,
+      skip_package_pkg: true
+    )
+
+    upload_to_testflight(
+      api_key_path: File.expand_path("~/.appstoreconnect/keys/AuthKey_#{ENV['APPSTORE_KEY_ID']}.p8"),
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

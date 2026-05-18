@@ -101,6 +101,12 @@
       "type": "file"
     },
     {
+      "path": "ExportOptions.plist",
+      "accessCount": 4,
+      "lastAccessed": 1779101323264,
+      "type": "file"
+    },
+    {
       "path": "Info.plist",
       "accessCount": 3,
       "lastAccessed": 1779100944358,
@@ -125,12 +131,6 @@
       "type": "directory"
     },
     {
-      "path": "ExportOptions.plist",
-      "accessCount": 1,
-      "lastAccessed": 1779098108112,
-      "type": "file"
-    },
-    {
       "path": "MagRabbit.entitlements",
       "accessCount": 1,
       "lastAccessed": 1779098109097,
@@ -140,6 +140,12 @@
       "path": "Podfile",
       "accessCount": 1,
       "lastAccessed": 1779098424751,
+      "type": "file"
+    },
+    {
+      "path": "fastlane\\Fastfile",
+      "accessCount": 1,
+      "lastAccessed": 1779101304263,
       "type": "file"
     }
   ],
