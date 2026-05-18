@@ -189,9 +189,9 @@ struct FlowLayout: Layout {
         MagazineDetailView(magazine: Magazine(
             id: "test",
             name: "Test Magazine",
-            nameJa": "テスト雑誌",
+            nameJa: "テスト雑誌",
             description: "This is a test magazine for testing purposes.",
-            descriptionJa": "これはテスト目的のテスト雑誌です。",
+            descriptionJa: "これはテスト目的のテスト雑誌です。",
             category: "Test",
             country: "USA",
             emoji: "📚",

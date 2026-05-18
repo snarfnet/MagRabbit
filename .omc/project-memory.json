@@ -83,6 +83,12 @@
   },
   "hotPaths": [
     {
+      "path": "project.yml",
+      "accessCount": 3,
+      "lastAccessed": 1779100444618,
+      "type": "file"
+    },
+    {
       "path": "Package.swift",
       "accessCount": 2,
       "lastAccessed": 1779098426697,
@@ -98,6 +104,12 @@
       "path": "Sources\\MagRabbit\\AdMob\\BannerAdView.swift",
       "accessCount": 2,
       "lastAccessed": 1779098614954,
+      "type": "file"
+    },
+    {
+      "path": "Sources\\MagRabbit\\Views\\MagazineDetailView.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779100843864,
       "type": "file"
     },
     {
