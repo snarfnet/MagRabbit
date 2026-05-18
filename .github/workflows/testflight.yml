@@ -20,11 +20,6 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Generate Xcode Project from SPM
-        run: |
-          swift package generate-xcodeproj
-          ls -la MagRabbit.xcodeproj/ || echo "Project generated"
-
       - name: Build Archive
         run: |
           mkdir -p build
@@ -33,6 +28,7 @@ jobs:
             -configuration Release \
             -archivePath ./build/MagRabbit.xcarchive \
             -allowProvisioningUpdates \
+            -derivedDataPath ./build/DerivedData \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="MagRabbit AppStore"
 
