@@ -57,7 +57,7 @@ extension Magazine {
     }
 
     var discoveryNote: String {
-        "\(country) 発の \(localizedCategory) 系インディペンデント誌。公式サイトで本文や最新号を確認する前に、雰囲気と基本情報をざっと掴めます。"
+        "\(country) 発の \(localizedCategory) 系インディペンデント誌。公式サイトや最新号を探す前に、雰囲気と基本情報をざっと掴めます。"
     }
 
     private var generatedJapaneseNote: String {

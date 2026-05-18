@@ -41,7 +41,7 @@ struct MagazineDetailView: View {
     }
 
     private var websiteButtonTitle: String {
-        officialWebsiteURL == nil ? "公式サイトを探す" : "公式サイトで確認"
+        officialWebsiteURL == nil ? "Googleで公式サイトを検索" : "公式サイトで確認"
     }
 
     var body: some View {

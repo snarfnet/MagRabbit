@@ -107,7 +107,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 StatPill(value: "\(magazines.count)", label: "冊")
                 StatPill(value: "\(categories.count)", label: "ジャンル")
-                StatPill(value: "公式", label: "導線")
+                StatPill(value: "検索", label: "導線")
             }
         }
         .padding(18)
