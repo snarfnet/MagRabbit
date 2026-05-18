@@ -69,11 +69,14 @@ jobs:
           cp -r "$APP_PATH" build/Payload/
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
-      - name: Setup Ruby and Fastlane
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
           bundler-cache: true
+
+      - name: Install Fastlane
+        run: gem install fastlane
 
       - name: Upload to TestFlight with Fastlane
         env:
