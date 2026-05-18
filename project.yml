@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.amasaki
   deploymentTarget:
     iOS: "15.0"
+  developmentTeam: JGQD8PLNN8
 
 targets:
   MagRabbit:
@@ -13,6 +14,10 @@ targets:
       - Sources/MagRabbit
       - path: Sources/MagRabbit/Data
         createIntermediateGroups: true
+    settings:
+      DEVELOPMENT_TEAM: JGQD8PLNN8
+      CODE_SIGN_IDENTITY: Apple Distribution
+      CODE_SIGN_STYLE: Automatic
     info:
       path: Info.plist
       properties:
