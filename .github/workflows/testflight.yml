@@ -190,16 +190,40 @@ jobs:
           UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           mkdir -p build/export
 
           if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
-            APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
-            test -f "$APP_PATH/embedded.mobileprovision"
-            rm -rf build/Payload
-            mkdir -p build/Payload
-            cp -R "$APP_PATH" build/Payload/
-            cd build && zip -qry export/MagRabbit.ipa Payload && cd ..
+            cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+            xcodebuild -exportArchive \
+              -archivePath ./build/MagRabbit.xcarchive \
+              -exportPath ./build/export \
+              -exportOptionsPlist ./build/ExportOptions.plist \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" \
+              -authenticationKeyID "$APPSTORE_KEY_ID" \
+              -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
           else
             APP_PATH="./build/MagRabbit.xcarchive/Products/Applications/MagRabbit.app"
             mkdir -p build/Payload
