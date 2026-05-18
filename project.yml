@@ -25,6 +25,7 @@ targets:
         CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
         CFBundleInfoDictionaryVersion: "6.0"
         CFBundleName: MagRabbit
+        CFBundleDisplayName: 海外のマニアックな雑誌紹介
         CFBundlePackageType: APPL
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"

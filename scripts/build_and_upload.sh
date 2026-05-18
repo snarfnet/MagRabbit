@@ -9,7 +9,7 @@ echo "=========================================="
 
 # Configuration
 PROJECT_NAME="MagRabbit"
-BUNDLE_ID="com.amasaki.MagRabbit"
+BUNDLE_ID="com.magrabbit.MagRabbit"
 SCHEME="MagRabbit"
 CONFIGURATION="Release"
 
@@ -27,11 +27,11 @@ echo
 
 # Verify API key file exists
 if [ ! -f "$API_KEY_PATH" ]; then
-    echo "❌ API Key file not found: $API_KEY_PATH"
+    echo "❁EAPI Key file not found: $API_KEY_PATH"
     exit 1
 fi
 
-echo "✓ Configuration loaded"
+echo "✁EConfiguration loaded"
 echo
 
 # Step 1: Generate Xcode project with xcodegen
@@ -41,7 +41,7 @@ if ! command -v xcodegen &> /dev/null; then
     brew install xcodegen
 fi
 xcodegen generate -s project.yml
-echo "✓ Project generated"
+echo "✁EProject generated"
 echo
 
 # Step 2: Build Archive
@@ -57,7 +57,7 @@ xcodebuild archive \
     CODE_SIGN_IDENTITY="" \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGNING_ALLOWED=NO
-echo "✓ Archive built"
+echo "✁EArchive built"
 echo
 
 # Step 3: Create IPA
@@ -67,7 +67,7 @@ APP_PATH="${ARCHIVE_PATH}/Products/Applications/${PROJECT_NAME}.app"
 cp -r "$APP_PATH" "${BUILD_DIR}/Payload/"
 cd "$BUILD_DIR" && zip -r "export/${PROJECT_NAME}.ipa" Payload && cd ..
 rm -rf "${BUILD_DIR}/Payload"
-echo "✓ IPA created: $IPA_FILE"
+echo "✁EIPA created: $IPA_FILE"
 echo
 
 # Step 4: Upload to TestFlight
@@ -85,7 +85,7 @@ xcrun altool \
     --api-key "$API_KEY_FILENAME"
 
 echo
-echo "✅ Upload complete!"
+echo "✁EUpload complete!"
 echo
-echo "TestFlight での確認:"
+echo "TestFlight での確誁E"
 echo "https://appstoreconnect.apple.com/apps/${BUNDLE_ID}/testflight/ios"

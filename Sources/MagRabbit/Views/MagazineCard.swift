@@ -4,72 +4,111 @@ struct MagazineCard: View {
     let magazine: Magazine
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Background Color
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(hex: magazine.color) ?? Color.blue)
-                .opacity(0.9)
+        VStack(alignment: .leading, spacing: 0) {
+            cover
+            metadata
+        }
+        .background(AppTheme.paperLight)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.ink.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(color: AppTheme.ink.opacity(0.08), radius: 10, x: 0, y: 6)
+    }
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(magazine.emoji)
-                            .font(.system(size: 32))
+    private var cover: some View {
+        ZStack(alignment: .topLeading) {
+            magazine.accentColor
 
-                        Text(magazine.name)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .lineLimit(2)
-
-                        Text(magazine.nameJa)
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                            .opacity(0.8)
-                            .lineLimit(1)
-                    }
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text(magazine.country.uppercased())
+                        .font(.system(size: 10, weight: .black, design: .monospaced))
                     Spacer()
+                    Text(magazine.frequencyLabel)
+                        .font(.system(size: 10, weight: .black, design: .monospaced))
                 }
+                .foregroundStyle(.white.opacity(0.86))
+
+                Rectangle()
+                    .fill(.white.opacity(0.72))
+                    .frame(height: 2)
+                    .padding(.vertical, 12)
+
+                Text(magazine.name)
+                    .font(.system(size: 24, weight: .black, design: .serif))
+                    .foregroundStyle(.white)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.72)
 
                 Spacer()
 
-                HStack(spacing: 4) {
-                    Text(magazine.category)
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.white.opacity(0.3))
-                        .foregroundColor(.white)
-                        .cornerRadius(4)
+                HStack(alignment: .bottom) {
+                    Image(systemName: magazine.categorySymbol)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.92))
 
-                    Text(magazine.country)
-                        .font(.caption2)
-                        .foregroundColor(.white)
+                    Spacer()
+
+                    Text(magazine.localizedCategory)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(AppTheme.ink)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(AppTheme.paperLight, in: RoundedRectangle(cornerRadius: 5))
                 }
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding(13)
+
+            VStack(spacing: 5) {
+                ForEach(0..<4, id: \.self) { _ in
+                    Circle()
+                        .fill(.white.opacity(0.22))
+                        .frame(width: 4, height: 4)
+                }
+            }
+            .padding(.leading, 7)
+            .padding(.top, 58)
         }
-        .aspectRatio(1, contentMode: .fill)
+        .aspectRatio(0.78, contentMode: .fit)
+    }
+
+    private var metadata: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(magazine.readableJapaneseName)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppTheme.ink)
+                .lineLimit(2)
+
+            HStack(spacing: 6) {
+                Label(magazine.priceLabel, systemImage: magazine.price.lowercased() == "free" ? "gift.fill" : "tag.fill")
+                Text("・")
+                Text(magazine.frequencyLabel)
+            }
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(AppTheme.mutedInk)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
     MagazineCard(magazine: Magazine(
         id: "test",
-        name: "Test Magazine",
-        nameJa: "テスト雑誌",
-        description: "Test description",
-        descriptionJa: "テスト説明",
-        category: "Test",
+        name: "Ferret Fancy",
+        nameJa: "フェレット愛好家向け",
+        description: "A niche magazine about ferret care.",
+        descriptionJa: "フェレットの飼育や文化を扱う海外誌。",
+        category: "Animals",
         country: "USA",
-        emoji: "📚",
-        color: "#FF6B6B",
+        emoji: "",
+        color: "#D4A574",
         websiteUrl: "https://example.com",
         frequency: "monthly",
         price: "paid",
-        tags: ["test"]
+        tags: ["animals", "ferret"]
     ))
     .padding()
 }

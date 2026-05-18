@@ -6,6 +6,17 @@ on:
       - main
       - develop
   workflow_dispatch:
+    inputs:
+      register_bundle_id:
+        description: Register Bundle ID on App Store Connect
+        required: false
+        type: boolean
+        default: true
+      upload_testflight:
+        description: Upload to TestFlight after building
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -21,13 +32,14 @@ jobs:
           xcode-version: latest-stable
 
       - name: Register Bundle ID on App Store Connect
+        if: ${{ github.event_name == 'push' || inputs.register_bundle_id || inputs.upload_testflight }}
         env:
           AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
           AUTHKEY: ${{ secrets.AUTHKEY }}
         run: |
           chmod +x ./scripts/register_bundle_id.sh
-          ./scripts/register_bundle_id.sh || echo "Bundle ID already registered"
+          ./scripts/register_bundle_id.sh
 
       - name: Generate Xcode Project with xcodegen
         run: |
@@ -35,6 +47,7 @@ jobs:
           xcodegen generate -s project.yml
 
       - name: Setup API Key
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
         env:
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_KEY: ${{ secrets.AUTHKEY }}
@@ -70,15 +83,18 @@ jobs:
           cd build && zip -r export/MagRabbit.ipa Payload && cd ..
 
       - name: Setup Ruby
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
           bundler-cache: true
 
       - name: Install Fastlane
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
         run: gem install fastlane
 
       - name: Upload to TestFlight with Fastlane
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
         env:
           API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
@@ -104,4 +120,3 @@ jobs:
           name: MagRabbit-IPA
           path: ./build/export/MagRabbit.ipa
           retention-days: 30
-

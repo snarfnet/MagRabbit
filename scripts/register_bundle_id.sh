@@ -1,103 +1,121 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# Bundle ID を App Store Connect に自動登録
-# GitHub Actions から呼び出されるスクリプト
+BUNDLE_ID="${BUNDLE_ID:-com.magrabbit.MagRabbit}"
+BUNDLE_NAME="${BUNDLE_NAME:-MagRabbit}"
+BUNDLE_PLATFORM="${BUNDLE_PLATFORM:-IOS}"
+export BUNDLE_ID BUNDLE_NAME BUNDLE_PLATFORM
 
-BUNDLE_ID="com.magrabbit.MagRabbit"
-API_KEY_ID="${AUTHKEY_KEY_ID}"
-API_ISSUER_ID="${AUTHKEY_ISSUER_ID}"
-API_KEY_BASE64="${AUTHKEY}"
+: "${AUTHKEY_KEY_ID:?AUTHKEY_KEY_ID is required}"
+: "${AUTHKEY_ISSUER_ID:?AUTHKEY_ISSUER_ID is required}"
+: "${AUTHKEY:?AUTHKEY is required}"
 
-echo "🚀 Bundle ID を App Store Connect に登録"
-echo "===================================="
+KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${AUTHKEY_KEY_ID}.p8"
+export KEY_PATH AUTHKEY_KEY_ID AUTHKEY_ISSUER_ID
 
-# API Key をファイルに保存
-mkdir -p ~/.appstoreconnect/private_keys
-echo "$API_KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+echo "Registering Bundle ID"
+echo "Bundle ID: ${BUNDLE_ID}"
+echo "Platform: ${BUNDLE_PLATFORM}"
 
-# JWT 生成関数
+mkdir -p "$(dirname "$KEY_PATH")"
+echo "$AUTHKEY" | base64 -d > "$KEY_PATH"
+chmod 600 "$KEY_PATH"
+
 generate_jwt() {
-    local key_file=$1
-    local key_id=$2
-    local issuer_id=$3
+  ruby -ropenssl -rjson -rbase64 <<'RUBY'
+def base64_url(value)
+  Base64.urlsafe_encode64(value, padding: false)
+end
 
-    local header='{"alg":"ES256","kid":"'${key_id}'","typ":"JWT"}'
-    local now=$(date +%s)
-    local exp=$((now + 20*60))
-    local payload='{"iss":"'${issuer_id}'","iat":'${now}',"exp":'${exp}',"aud":"appstoreconnect-v1"}'
+def int_to_fixed_bytes(value)
+  value.to_s(16).rjust(64, "0").scan(/../).map { |byte| byte.to_i(16) }.pack("C*")
+end
 
-    local header_b64=$(echo -n "$header" | openssl base64)
-    local payload_b64=$(echo -n "$payload" | openssl base64)
-    local header_payload="${header_b64}.${payload_b64}"
-
-    local signature=$(echo -n "$header_payload" | openssl dgst -sha256 -sign "$key_file" | openssl base64)
-
-    echo "${header_payload}.${signature}"
+now = Time.now.to_i
+header = {
+  alg: "ES256",
+  kid: ENV.fetch("AUTHKEY_KEY_ID"),
+  typ: "JWT"
+}
+payload = {
+  iss: ENV.fetch("AUTHKEY_ISSUER_ID"),
+  iat: now,
+  exp: now + 20 * 60,
+  aud: "appstoreconnect-v1"
 }
 
-# JWT 生成
-JWT=$(generate_jwt ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8 "$API_KEY_ID" "$API_ISSUER_ID")
+token_body = [
+  base64_url(JSON.generate(header)),
+  base64_url(JSON.generate(payload))
+].join(".")
 
-echo "✓ JWT 生成完了"
-echo
-echo "DEBUG: JWT = ${JWT:0:50}..."
-echo
+key = OpenSSL::PKey.read(File.read(ENV.fetch("KEY_PATH")))
+der_signature = key.sign(OpenSSL::Digest::SHA256.new, token_body)
+asn1_signature = OpenSSL::ASN1.decode(der_signature)
+r = int_to_fixed_bytes(asn1_signature.value[0].value)
+s = int_to_fixed_bytes(asn1_signature.value[1].value)
 
-# Bundle ID が既に存在するか確認
-echo "📝 Bundle ID 確認中..."
+puts [token_body, base64_url(r + s)].join(".")
+RUBY
+}
 
-RESPONSE=$(curl -s -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter%5Bidentifier%5D=${BUNDLE_ID}" \
-  -H "Authorization: Bearer ${JWT}" \
-  -H "Content-Type: application/json")
+json_value() {
+  ruby -rjson -e 'value = JSON.parse(STDIN.read); ARGV[0].split(".").each { |key| value = value.is_a?(Array) ? value[key.to_i] : value[key]; break if value.nil? }; puts value if value' "$1"
+}
 
-echo "DEBUG: GET response = $RESPONSE"
+JWT=$(generate_jwt)
 
-# 既存をチェック
-if echo "$RESPONSE" | grep -q '"identifier":"'${BUNDLE_ID}'"'; then
-    echo "✓ Bundle ID は既に登録済み"
-    exit 0
+list_bundle_ids() {
+  curl -sS -X GET "https://api.appstoreconnect.apple.com/v1/bundleIds?filter%5Bidentifier%5D=${BUNDLE_ID}" \
+    -H "Authorization: Bearer ${JWT}" \
+    -H "Content-Type: application/json"
+}
+
+RESPONSE=$(list_bundle_ids)
+
+if echo "$RESPONSE" | grep -q '"errors"'; then
+  echo "$RESPONSE"
+  exit 1
 fi
 
-echo "✓ 新しい Bundle ID を作成中..."
+EXISTING_ID=$(echo "$RESPONSE" | json_value "data.0.id" || true)
 
-# Bundle ID を作成
-RESPONSE=$(curl -s -X POST "https://api.appstoreconnect.apple.com/v1/bundleIds" \
+if [ -n "$EXISTING_ID" ]; then
+  echo "Bundle ID already exists: ${EXISTING_ID}"
+  {
+    echo "bundle_id=${BUNDLE_ID}"
+    echo "bundle_id_resource_id=${EXISTING_ID}"
+  } >> "${GITHUB_OUTPUT:-/dev/null}"
+  exit 0
+fi
+
+CREATE_BODY=$(ruby -rjson -e '
+puts JSON.generate({
+  data: {
+    type: "bundleIds",
+    attributes: {
+      identifier: ENV.fetch("BUNDLE_ID"),
+      name: ENV.fetch("BUNDLE_NAME"),
+      platform: ENV.fetch("BUNDLE_PLATFORM")
+    }
+  }
+})
+')
+
+RESPONSE=$(curl -sS -X POST "https://api.appstoreconnect.apple.com/v1/bundleIds" \
   -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json" \
-  -d '{
-    "data": {
-      "type": "bundleIds",
-      "attributes": {
-        "identifier": "'${BUNDLE_ID}'",
-        "name": "MagRabbit"
-      }
-    }
-  }')
+  -d "$CREATE_BODY")
 
-echo "DEBUG: POST response: $RESPONSE"
-
-# レスポンス解析
 if echo "$RESPONSE" | grep -q '"errors"'; then
-    echo "❌ エラー:"
-    echo "$RESPONSE"
-    exit 1
+  echo "$RESPONSE"
+  exit 1
 fi
 
-BUNDLE_ID_RESULT=$(echo "$RESPONSE" | grep -o '"identifier":"[^"]*"' | head -1 | cut -d'"' -f4)
+CREATED_ID=$(echo "$RESPONSE" | json_value "data.id")
 
-if [ -z "$BUNDLE_ID_RESULT" ]; then
-    echo "❌ Bundle ID が取得できませんでした"
-    echo "$RESPONSE"
-    exit 1
-fi
-
-echo "✓ Bundle ID 作成完了"
-echo
-
-echo "✅ Bundle ID 登録完了！"
-echo
-echo "Bundle ID: $BUNDLE_ID_RESULT"
-echo
-echo "📱 App Store Connect で確認:"
-echo "https://appstoreconnect.apple.com"
+echo "Bundle ID created: ${CREATED_ID}"
+{
+  echo "bundle_id=${BUNDLE_ID}"
+  echo "bundle_id_resource_id=${CREATED_ID}"
+} >> "${GITHUB_OUTPUT:-/dev/null}"
