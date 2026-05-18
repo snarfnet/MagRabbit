@@ -89,6 +89,12 @@
       "type": "file"
     },
     {
+      "path": "Sources\\MagRabbit\\Views\\MagazineDetailView.swift",
+      "accessCount": 6,
+      "lastAccessed": 1779101198502,
+      "type": "file"
+    },
+    {
       "path": "Package.swift",
       "accessCount": 4,
       "lastAccessed": 1779101022326,
@@ -98,12 +104,6 @@
       "path": "Info.plist",
       "accessCount": 3,
       "lastAccessed": 1779100944358,
-      "type": "file"
-    },
-    {
-      "path": "Sources\\MagRabbit\\Views\\MagazineDetailView.swift",
-      "accessCount": 3,
-      "lastAccessed": 1779101013609,
       "type": "file"
     },
     {

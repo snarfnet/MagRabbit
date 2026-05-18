@@ -122,65 +122,22 @@ struct Badge: View {
     }
 }
 
-struct FlowLayout: Layout {
+struct FlowLayout<Content: View>: View {
+    let content: () -> Content
     var spacing: CGFloat = 8
 
-    func sizeThatFits(
-        proposal: ProposedSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) -> CGSize {
-        let maxWidth = proposal.width ?? 300
-        var currentX: CGFloat = 0
-        var currentY: CGFloat = 0
-        var lineHeight: CGFloat = 0
-        var maxX: CGFloat = 0
+    @State private var totalHeight = CGFloat.zero
 
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-
-            if currentX + size.width > maxWidth {
-                currentX = 0
-                currentY += lineHeight + spacing
-                lineHeight = 0
-            }
-
-            currentX += size.width + spacing
-            maxX = max(maxX, currentX)
-            lineHeight = max(lineHeight, size.height)
+    var body: some View {
+        VStack(alignment: .leading, spacing: spacing) {
+            content()
         }
-
-        return CGSize(width: maxX - spacing, height: currentY + lineHeight)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    func placeSubviews(
-        in bounds: CGRect,
-        proposal: ProposedSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) {
-        let maxWidth = bounds.width
-        var currentX = bounds.minX
-        var currentY = bounds.minY
-        var lineHeight: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-
-            if currentX + size.width > bounds.maxX {
-                currentX = bounds.minX
-                currentY += lineHeight + spacing
-                lineHeight = 0
-            }
-
-            subview.place(
-                at: CGPoint(x: currentX, y: currentY),
-                proposal: ProposedSize(size)
-            )
-
-            currentX += size.width + spacing
-            lineHeight = max(lineHeight, size.height)
-        }
+    init(spacing: CGFloat = 8, @ViewBuilder content: @escaping () -> Content) {
+        self.spacing = spacing
+        self.content = content
     }
 }
 
