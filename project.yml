@@ -1,6 +1,6 @@
 name: MagRabbit
 options:
-  bundleIdPrefix: com.amasaki
+  bundleIdPrefix: com.magrabbit
   deploymentTarget:
     iOS: "17.0"
   developmentTeam: JGQD8PLNN8
