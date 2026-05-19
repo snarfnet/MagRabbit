@@ -64,7 +64,7 @@ platform :ios do
         "ja" => "https://raw.githubusercontent.com/snarfnet/MagRabbit/codex/magazine-ui-redesign/PRIVACY.md"
       },
       copyright: "2026 MagRabbit",
-      primary_category: "Lifestyle",
+      primary_category: "LIFESTYLE",
       price_tier: 0,
       app_rating_config_path: "fastlane/metadata/app_rating_config.json",
       submit_for_review: true,
