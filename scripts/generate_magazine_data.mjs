@@ -36,6 +36,7 @@ const categories = [
 const countries = ["USA", "UK", "Germany", "France", "Italy", "Netherlands", "Sweden", "Norway", "Finland", "Spain", "Portugal", "Canada", "Australia", "New Zealand", "Japan", "Taiwan", "Korea", "Mexico", "Brazil", "Argentina"];
 const frequencies = ["weekly", "biweekly", "monthly", "bimonthly", "quarterly", "biannually"];
 const suffixes = ["Review", "Journal", "Digest", "Quarterly", "Gazette", "Notebook", "Field Guide", "Ledger", "Archive", "Companion"];
+const publisherKinds = ["Small Press", "Independent Desk", "Field Notes Press", "Local Society", "Workshop Editions", "Community Archive"];
 
 const magazines = Array.from({ length: count }, (_, index) => {
   const category = categories[index % categories.length];
@@ -61,6 +62,7 @@ const magazines = Array.from({ length: count }, (_, index) => {
     websiteUrl: `https://example-mag-${index}.com`,
     frequency,
     price: index % 4 === 0 ? "free" : "paid",
+    publisher: `${categoryJa} ${publisherKinds[index % publisherKinds.length]}`,
     tags: [categoryJa, jaName, country, frequency]
   };
 });

@@ -23,7 +23,7 @@ struct MagazineCard: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text(magazine.country.uppercased())
+                    Text(magazine.countryLabel.uppercased())
                         .font(.system(size: 10, weight: .black, design: .monospaced))
                     Spacer()
                     Text(magazine.frequencyLabel)
@@ -82,7 +82,7 @@ struct MagazineCard: View {
                 .lineLimit(2)
 
             HStack(spacing: 6) {
-                Label(magazine.priceLabel, systemImage: magazine.price.lowercased() == "free" ? "gift.fill" : "tag.fill")
+                Label(magazine.priceLabel, systemImage: magazine.price.lowercased() == "free" ? "gift.fill" : "magnifyingglass")
                 Text("・")
                 Text(magazine.frequencyLabel)
             }
@@ -108,6 +108,7 @@ struct MagazineCard: View {
         websiteUrl: "https://example.com",
         frequency: "monthly",
         price: "paid",
+        publisher: "Small Press",
         tags: ["animals", "ferret"]
     ))
     .padding()

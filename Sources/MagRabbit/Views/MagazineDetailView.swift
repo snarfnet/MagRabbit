@@ -50,6 +50,7 @@ struct MagazineDetailView: View {
                 hero
                 quickFacts
                 noteSection
+                publishingSection
                 originalSection
                 tagSection
                 websiteButton
@@ -119,9 +120,9 @@ struct MagazineDetailView: View {
 
     private var quickFacts: some View {
         HStack(spacing: 10) {
-            FactBox(title: "国", value: magazine.country, icon: "globe.asia.australia.fill")
+            FactBox(title: "国", value: magazine.countryLabel, icon: "globe.asia.australia.fill")
             FactBox(title: "刊行", value: magazine.frequencyLabel, icon: "calendar")
-            FactBox(title: "価格", value: magazine.priceLabel, icon: magazine.price.lowercased() == "free" ? "gift.fill" : "tag.fill")
+            FactBox(title: "入手", value: magazine.priceLabel, icon: magazine.price.lowercased() == "free" ? "gift.fill" : "magnifyingglass")
         }
     }
 
@@ -147,6 +148,21 @@ struct MagazineDetailView: View {
                 .font(.callout)
                 .lineSpacing(5)
                 .foregroundStyle(AppTheme.mutedInk)
+        }
+    }
+
+    private var publishingSection: some View {
+        DetailSection(title: "出版・入手メモ", icon: "building.2.fill") {
+            VStack(alignment: .leading, spacing: 10) {
+                Label(magazine.publisherLabel, systemImage: "newspaper.fill")
+                    .font(.callout.weight(.bold))
+                    .foregroundStyle(AppTheme.ink)
+
+                Text(magazine.availabilityNote)
+                    .font(.callout)
+                    .lineSpacing(5)
+                    .foregroundStyle(AppTheme.mutedInk)
+            }
         }
     }
 
@@ -278,6 +294,7 @@ private struct DetailSection<Content: View>: View {
             websiteUrl: "https://example.com",
             frequency: "monthly",
             price: "paid",
+            publisher: "Small Press",
             tags: ["animals", "ferret"]
         ))
     }

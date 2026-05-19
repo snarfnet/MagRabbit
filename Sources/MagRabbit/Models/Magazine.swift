@@ -13,5 +13,6 @@ struct Magazine: Identifiable, Codable {
     let websiteUrl: String
     let frequency: String
     let price: String
+    let publisher: String?
     let tags: [String]
 }

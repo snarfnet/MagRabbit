@@ -42,7 +42,56 @@ extension Magazine {
     }
 
     var priceLabel: String {
-        price.lowercased() == "free" ? "無料" : "有料"
+        price.lowercased() == "free" ? "無料情報あり" : "有料の可能性"
+    }
+
+    var countryLabel: String {
+        "\(countryFlag) \(country)"
+    }
+
+    var publisherLabel: String {
+        let trimmedPublisher = (publisher ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedPublisher.isEmpty ? "小規模・独立系出版として要確認" : trimmedPublisher
+    }
+
+    var availabilityNote: String {
+        price.lowercased() == "free"
+            ? "無料公開や抜粋が見つかる可能性があります。最新の配布形態は公式サイトや検索結果で確認してください。"
+            : "正確な価格は未確認です。購読、単号販売、デジタル版の有無は公式サイトや検索結果で確認してください。"
+    }
+
+    private var countryFlag: String {
+        let countryCodes: [String: String] = [
+            "USA": "US",
+            "UK": "GB",
+            "Germany": "DE",
+            "France": "FR",
+            "Italy": "IT",
+            "Netherlands": "NL",
+            "Sweden": "SE",
+            "Norway": "NO",
+            "Finland": "FI",
+            "Spain": "ES",
+            "Portugal": "PT",
+            "Canada": "CA",
+            "Australia": "AU",
+            "New Zealand": "NZ",
+            "Japan": "JP",
+            "Taiwan": "TW",
+            "Korea": "KR",
+            "Mexico": "MX",
+            "Brazil": "BR",
+            "Argentina": "AR"
+        ]
+
+        guard let code = countryCodes[country] else {
+            return "🏳️"
+        }
+
+        return code.unicodeScalars
+            .compactMap { UnicodeScalar(127397 + Int($0.value)) }
+            .map(String.init)
+            .joined()
     }
 
     var safeTags: [String] {
