@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      submit_app_review:
+        description: Submit uploaded build to App Review
+        required: false
+        type: boolean
+        default: false
       list_certificates:
         description: List signing certificates and stop
         required: false
@@ -42,7 +47,7 @@ jobs:
           xcode-version: latest-stable
 
       - name: Register Bundle ID on App Store Connect
-        if: ${{ github.event_name == 'push' || inputs.register_bundle_id || inputs.upload_testflight }}
+        if: ${{ github.event_name == 'push' || inputs.register_bundle_id || inputs.upload_testflight || inputs.submit_app_review }}
         env:
           AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
@@ -140,7 +145,7 @@ jobs:
           xcodegen generate -s project.yml
 
       - name: Setup API Key
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
         env:
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_KEY: ${{ secrets.AUTHKEY }}
@@ -151,7 +156,7 @@ jobs:
 
       - name: Build and Sign Archive
         env:
-          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -189,7 +194,7 @@ jobs:
 
       - name: Create IPA
         env:
-          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+          UPLOAD_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
           APPSTORE_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -234,18 +239,18 @@ jobs:
           fi
 
       - name: Setup Ruby
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
           bundler-cache: true
 
       - name: Install Fastlane
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
         run: gem install fastlane
 
       - name: Upload to TestFlight with Fastlane
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight }}
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight || inputs.submit_app_review }}
         env:
           API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
@@ -263,6 +268,18 @@ jobs:
 
           # Upload via Fastlane
           fastlane upload_testflight ipa_path:./build/export/MagRabbit.ipa api_key_path:$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+
+      - name: Submit to App Review with Fastlane
+        if: ${{ inputs.submit_app_review }}
+        env:
+          API_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          API_KEY_BASE64: ${{ secrets.AUTHKEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$API_KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+
+          fastlane submit_app_review build_number:${GITHUB_RUN_NUMBER} api_key_path:$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
 
       - name: Save IPA as Artifact
         if: always()
