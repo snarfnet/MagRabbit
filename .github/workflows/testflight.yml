@@ -269,6 +269,16 @@ jobs:
           # Upload via Fastlane
           fastlane upload_testflight ipa_path:./build/export/MagRabbit.ipa api_key_path:$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
 
+      - name: Set free App Store pricing
+        if: ${{ inputs.submit_app_review }}
+        env:
+          AUTHKEY_KEY_ID: ${{ secrets.AUTHKEY_KEY_ID }}
+          AUTHKEY_ISSUER_ID: ${{ secrets.AUTHKEY_ISSUER_ID }}
+          AUTHKEY: ${{ secrets.AUTHKEY }}
+        run: |
+          chmod +x ./scripts/set_free_pricing.sh
+          ./scripts/set_free_pricing.sh
+
       - name: Submit to App Review with Fastlane
         if: ${{ inputs.submit_app_review }}
         env:

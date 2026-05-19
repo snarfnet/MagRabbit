@@ -65,7 +65,6 @@ platform :ios do
       },
       copyright: "2026 MagRabbit",
       primary_category: "LIFESTYLE",
-      price_tier: 0,
       app_rating_config_path: "fastlane/metadata/app_rating_config.json",
       submit_for_review: true,
       automatic_release: true,
