@@ -43,7 +43,6 @@ platform :ios do
     deliver(
       api_key: api_key,
       app_identifier: "com.magrabbit.MagRabbit",
-      apple_id: "6770562560",
       app_version: "1.0",
       build_number: build_number,
       submit_for_review: true,
