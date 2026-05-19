@@ -214,7 +214,7 @@ struct ContentView: View {
     }
 
     private func loadMagazines() {
-        let filenames = ["magazines_1000", "magazines"]
+        let filenames = ["magazines_3000", "magazines_1000", "magazines"]
 
         for filename in filenames {
             guard let url = Bundle.main.url(forResource: filename, withExtension: "json") else {

@@ -80,7 +80,15 @@ extension Magazine {
         "Machines": "機械",
         "Weird": "不思議",
         "Sports": "スポーツ",
-        "Science": "科学"
+        "Science": "科学",
+        "Music": "音楽",
+        "Architecture": "建築",
+        "Urban": "都市観察",
+        "Fashion": "装い",
+        "Film": "映画",
+        "Games": "ゲーム",
+        "Transport": "交通",
+        "Collecting": "収集"
     ]
 
     private static let categorySymbols: [String: String] = [
@@ -99,7 +107,15 @@ extension Magazine {
         "Machines": "gearshape.2.fill",
         "Weird": "questionmark.diamond.fill",
         "Sports": "figure.run",
-        "Science": "atom"
+        "Science": "atom",
+        "Music": "music.note.list",
+        "Architecture": "building.2.fill",
+        "Urban": "signpost.right.fill",
+        "Fashion": "tshirt.fill",
+        "Film": "movieclapper.fill",
+        "Games": "gamecontroller.fill",
+        "Transport": "tram.fill",
+        "Collecting": "archivebox.fill"
     ]
 
     private static let frequencyNames: [String: String] = [
