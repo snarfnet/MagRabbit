@@ -47,5 +47,6 @@ targets:
         UILaunchStoryboardName: LaunchScreen
         UIRequiredDeviceCapabilities:
           - armv7
+        NSUserTrackingUsageDescription: This identifier may be used to show relevant ads and measure ad performance.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
